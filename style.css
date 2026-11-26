@@ -37,3 +37,22 @@ body,.brand,.mark,.avatars i,.avatar,h1,h2,h3,.money{font-family:"DM Sans",Arial
   .login-card #loginForm { padding: 16px 12px 12px; }
   #loginForm .brand { margin-bottom: 10px; }
 }
+
+body[data-theme]:not([data-theme="Casal"]) {
+  --profile-tint: color-mix(in srgb, var(--profile-accent) 16%, white);
+  --profile-ink: color-mix(in srgb, var(--profile-accent) 48%, #101510);
+}
+body[data-theme]:not([data-theme="Casal"]) :is(main .primary, dialog .primary, .round.confirm, #profiles .on) {
+  color: var(--profile-foreground);
+  background: var(--profile-accent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--profile-foreground) 24%, transparent);
+}
+body[data-theme]:not([data-theme="Casal"]) :is(nav .on, .kindtabs [aria-pressed="true"]) {
+  background: var(--profile-tint);
+  color: var(--profile-ink);
+}
+body[data-theme]:not([data-theme="Casal"]) :is(.plain, .herobutton, .kicker) { color: var(--profile-ink); }
+body[data-theme]:not([data-theme="Casal"]) :is(.bar i, #modal .paid input:checked) { background: var(--profile-accent); }
+body[data-theme]:not([data-theme="Casal"]) .tinyline { border-color: var(--profile-ink); }
+body[data-theme]:not([data-theme="Casal"]) :is(.primary, .round.confirm):hover { filter: brightness(.95); }
+.personpic,.avatars i.personpic { color: var(--initial, white); text-shadow: none; }

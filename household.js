@@ -50,20 +50,35 @@ function occurrences(records,skips,period){
  }
  return result;
 }
+function profileColor(name, settings=profileSettings[name]||{}){
+ if(/^#[0-9a-f]{6}$/i.test(settings.color))return settings.color;
+ return {Pedro:'#65876b',Thaynara:'#b67e69',Casal:'#29573f'}[name];
+}
+function foreground(color){
+ const [r,g,b]=color.slice(1).match(/../g).map(hex=>{
+  const c=parseInt(hex,16)/255;
+  return c<=0.04045?c/12.92:((c+0.055)/1.055)**2.4;
+ });
+ return 0.2126*r+0.7152*g+0.0722*b>0.179?'#000':'#fff';
+}
 function avatar(name,settings=profileSettings[name]||{}){
- const col=/^#[0-9a-f]{6}$/i.test(settings.color)?settings.color:name==='Pedro'?'#65876b':'#b67e69';
+ const col=profileColor(name,settings);
  const img=/^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(settings.photo||'')?'<img src="'+settings.photo+'" alt="">':'';
- return '<i class="personpic" style="--person:'+col+'">'+(img||name[0])+'</i>';
+ return '<i class="personpic" style="--person:'+col+';--initial:'+foreground(col)+'">'+(img||name[0])+'</i>';
 }
 function paintProfiles(){
+ const color=profileColor(profile);
+ document.body.dataset.theme=profile;
+ document.body.style.setProperty('--profile-accent',color);
+ document.body.style.setProperty('--profile-foreground',foreground(color));
  document.querySelectorAll('.avatars').forEach(el=>el.innerHTML=avatar('Pedro')+avatar('Thaynara'));
- document.querySelectorAll('#profiles button').forEach(el=>{const name=el.dataset.profile;if(name!=='Casal')el.innerHTML=avatar(name)+name;});
+ document.querySelectorAll('#profiles button').forEach(el=>{const name=el.dataset.profile;el.setAttribute('aria-pressed',String(name===profile));if(name!=='Casal')el.innerHTML=avatar(name)+name;});
 }
 function showProfile(name){
  if(!ready)return;
  const settings=profileSettings[name]||{},dlg=$('#personal');
  photoDraft=settings.photo||'';photoJob++;
- $('#personName').value=name;$('#color').value=settings.color||(name==='Pedro'?'#65876b':'#b67e69');$('#photo').value='';$('#profileError').textContent='';$('#saveProfile').disabled=false;
+ $('#personName').value=name;$('#color').value=profileColor(name,settings);$('#photo').value='';$('#profileError').textContent='';$('#saveProfile').disabled=false;
  previewPhoto();if(!dlg.open)dlg.showModal();
 }
 function previewPhoto(){$('#photoPreview').innerHTML=avatar($('#personName').value,{color:$('#color').value,photo:photoDraft});}
