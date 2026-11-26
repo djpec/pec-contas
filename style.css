@@ -76,3 +76,74 @@ body[data-theme] .hero .bar i {background:var(--profile-accent);}
 .space-actions {display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e0e5dc;margin-top:18px;padding-top:15px;}
 @media(max-width:620px){.filters{display:grid;gap:12px;justify-content:stretch}.filters input{justify-self:end}#chooseSpace{width:100%;}}
 @media(prefers-reduced-motion:no-preference){#spaceDialog[open]{animation:open-space .18s ease-out;}@keyframes open-space{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}}
+
+.mobile-save-label { display:none; }
+@media (max-width:760px), (pointer:coarse) and (max-height:600px) {
+  body:has(#modal[open]) { overflow:hidden; }
+  /* Safari magnifies focused controls below 16px, including notes and dates. */
+  #modal :is(input,select,textarea), #loginForm input, #personal :is(input,select), .filters input {
+    font-size:max(16px,1rem);
+  }
+  #modal {
+    position:fixed;
+    inset:var(--entry-top,0px) 0 auto;
+    margin:0;
+    width:100%;
+    max-width:none;
+    height:var(--entry-height,100dvh);
+    max-height:none;
+    padding:0;
+    border-radius:0;
+    overflow:hidden;
+    background:#fffefa;
+  }
+  #form {
+    height:100%;
+    display:grid;
+    grid-template-rows:auto minmax(0,1fr) auto auto;
+    padding-inline:max(0px,env(safe-area-inset-left)) max(0px,env(safe-area-inset-right));
+  }
+  #form .dialoghead {
+    margin:0;
+    padding:calc(6px + env(safe-area-inset-top)) 16px 6px;
+    border-bottom:1px solid #e1e6dd;
+  }
+  #form #fields {
+    padding:16px;
+    overflow:auto;
+    overscroll-behavior:contain;
+    scroll-padding:16px;
+  }
+  #form #error:not(:empty) {padding:6px 16px;}
+  #formfoot {
+    display:flex;
+    gap:10px;
+    margin:0;
+    padding:8px 16px max(8px,env(safe-area-inset-bottom));
+    background:#fffefa;
+  }
+  #formfoot .save {
+    margin:0;flex:1;min-width:0;height:46px;border-radius:11px;
+    font-size:16px;font-weight:650;
+  }
+  #formfoot .confirm svg {display:none}
+  .mobile-save-label {display:inline;}
+  #formfoot .round:not(.save) {position:static;width:46px;height:46px;flex:none;}
+  .kindtabs button,#close,#modal summary,nav button,.actions button,.space-actions button,#closeSpace,#add,.filters input {min-height:44px;}
+  #close,#closeSpace {min-width:44px;}
+  #modal summary {align-content:center;}
+  #modal label.paid {min-height:44px;margin:4px 0;}
+  #modal input[type=date] {min-width:0;max-width:100%;}
+}
+@media(max-width:480px) {
+  .row:has(.actions) {display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:6px 10px;}
+  .row:has(.actions) .actions {grid-column:2 / -1;justify-content:flex-end;}
+  .row b,.money {overflow-wrap:anywhere;}
+  .cards {grid-template-columns:repeat(2,minmax(0,1fr));}
+  .card .metrichead {flex-wrap:wrap;}
+  .titleline {flex-wrap:wrap;}
+  .titleline #add {flex-shrink:0;}
+}
+@media(max-width:360px) {
+  #modal .twocol {grid-template-columns:minmax(0,1fr);gap:0;}
+}

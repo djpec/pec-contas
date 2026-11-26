@@ -36,6 +36,19 @@ function changeGroup(group,type=group){
  $('#category').hidden=transfer;form.elements.category.disabled=transfer;
  $('#paidLabel').textContent=group==='Receita'?'Lançamento recebido':transfer?'Transferência realizada':'Lançamento pago';
 }
+const mobileEntry=matchMedia('(max-width: 760px), (pointer: coarse) and (max-height: 600px)');
+function fitEntryViewport(){
+ const viewport=window.visualViewport, modal=$('#modal');
+ if(!viewport||!modal.open||!mobileEntry.matches)return;
+ // Pin the sheet to the visible area when a software keyboard resizes or pans it.
+ // Preserve native scrolling and magnification when the user pinches to zoom.
+ if(viewport.scale!==1)return;
+ modal.style.setProperty('--entry-height',viewport.height+'px');
+ modal.style.setProperty('--entry-top',viewport.offsetTop+'px');
+}
+window.visualViewport?.addEventListener('resize',fitEntryViewport);
+window.visualViewport?.addEventListener('scroll',fitEntryViewport);
+mobileEntry.addEventListener('change',fitEntryViewport);
 function openForm(kind='save',id=null,preset){
  if(!ready)return;
  mode=kind;editing=id;$('#error').textContent='';
@@ -58,9 +71,18 @@ function openForm(kind='save',id=null,preset){
  if(!id)$('#schedule').onchange=e=>{const v=e.target.value;$('#partCount').hidden=v!=='parts';$('#form').elements.parts.disabled=v!=='parts';$('#scheduleHint').textContent=v==='parts'?'Informe o valor total da compra. O Elo divide em parcelas mensais.':v==='once'?'':'O valor se repete em cada vencimento. Os próximos ficam pendentes.'};
  if(x.series)$('#stopSeries').onclick=()=>{if(confirm('Encerrar esta e as próximas ocorrências?'))save({action:'stop',id:x.id,series:x.series,index:x.index})};
  changeGroup(Object.keys(groups).find(k=>groups[k].includes(t))||'Despesa',t);
- $('#formfoot').innerHTML=(id?'<button type="button" class="round" data-act="delete" title="Excluir lançamento" aria-label="Excluir lançamento">⌫</button>':'')+'<button class="round save confirm" title="Salvar lançamento" aria-label="Salvar lançamento"><svg viewBox="0 0 24 24"><path d="m4 13 5 5L20 6"/></svg></button><button class="round" name="another" title="Salvar e lançar outro" aria-label="Salvar e lançar outro">＋</button>';
+ $('#formfoot').innerHTML=(id?'<button type="button" class="round" data-act="delete" title="Excluir lançamento" aria-label="Excluir lançamento">⌫</button>':'')+'<button class="round save confirm" title="Salvar lançamento" aria-label="Salvar lançamento"><span class="mobile-save-label">Salvar lançamento</span><svg viewBox="0 0 24 24"><path d="m4 13 5 5L20 6"/></svg></button><button class="round" name="another" title="Salvar e lançar outro" aria-label="Salvar e lançar outro">＋</button>';
  }
- if(!$('#modal').open)$('#modal').showModal();$('#form input:not([type=checkbox])')?.focus();
+ const modal=$('#modal');
+ if(!modal.open)modal.showModal();
+ $('#fields').scrollTop=0;
+ if(mobileEntry.matches){
+  fitEntryViewport();
+  $('#close').focus({preventScroll:true});
+ }else{
+  $('#form input:not([type=checkbox])')?.focus();
+ }
+
 }
 const parseMoney=v=>{const n=v.trim();return /^(?:\d+|\d{1,3}(?:\.\d{3})+)(?:,\d{1,2})?$/.test(n)?Math.round(Number(n.replaceAll('.','').replace(',','.'))*100):/^\d+\.\d{1,2}$/.test(n)?Math.round(Number(n)*100):NaN};
 const moneyNumber=new Intl.NumberFormat('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
