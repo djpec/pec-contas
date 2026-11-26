@@ -56,3 +56,23 @@ body[data-theme]:not([data-theme="Casal"]) :is(.bar i, #modal .paid input:checke
 body[data-theme]:not([data-theme="Casal"]) .tinyline { border-color: var(--profile-ink); }
 body[data-theme]:not([data-theme="Casal"]) :is(.primary, .round.confirm):hover { filter: brightness(.95); }
 .personpic,.avatars i.personpic { color: var(--initial, white); text-shadow: none; }
+
+body[data-theme] { --space-wash:color-mix(in srgb,var(--profile-accent) 13%,white); --space-ink:color-mix(in srgb,var(--profile-accent) 45%,#17271e); }
+#chooseSpace { display:flex;align-items:center;gap:12px;padding:12px 16px;border:1px solid color-mix(in srgb,var(--profile-accent) 40%,white);border-inline-start:5px solid var(--profile-accent);background:var(--space-wash);border-radius:14px;text-align:left;min-width:min(310px,100%); }
+#spaceBadge,.couple-badge { display:inline-flex;align-items:center; }
+.couple-badge i+i { margin-left:-10px; }
+#chooseSpace .personpic,#profiles .personpic { width:34px;height:34px;font-size:16px; }
+.space-label { display:grid;gap:1px; }.space-label small,.space-change { color:var(--space-ink); }
+.space-label strong {font-size:18px}.space-change {margin-left:auto;font-size:14px;font-weight:600;}.space-change span{margin-left:4px;}
+body[data-theme] header {border-bottom:3px solid var(--profile-accent);}
+body[data-theme] .hero {background:linear-gradient(110deg,var(--space-wash),#f1f4e9);border-color:color-mix(in srgb,var(--profile-accent) 35%,white);}
+body[data-theme] .hero .bar i {background:var(--profile-accent);}
+#spaceDialog {width:min(440px,calc(100% - 28px));padding:24px;border-radius:20px;}
+#spaceDialog::backdrop {background:#15251f9c;backdrop-filter:blur(3px);}
+#profiles {display:grid;gap:10px;}
+#profiles button {display:grid;grid-template-columns:60px 1fr 24px;align-items:center;justify-items:start;text-align:left;padding:14px;border-radius:12px;border:1px solid #dce2da;background:#fff;color:#263b32;}
+#profiles button[aria-pressed=true] {border-color:var(--option-color);background:color-mix(in srgb,var(--option-color) 16%,white);box-shadow:inset 4px 0 var(--option-color);}
+#profiles button:hover {background:color-mix(in srgb,var(--option-color) 10%,white);}
+.space-actions {display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e0e5dc;margin-top:18px;padding-top:15px;}
+@media(max-width:620px){.filters{display:grid;gap:12px;justify-content:stretch}.filters input{justify-self:end}#chooseSpace{width:100%;}}
+@media(prefers-reduced-motion:no-preference){#spaceDialog[open]{animation:open-space .18s ease-out;}@keyframes open-space{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}}

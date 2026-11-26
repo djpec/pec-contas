@@ -14,7 +14,7 @@ function hero(){const g=sharedGoal(),r=stats(all(true)).reserve,pct=g?Math.min(1
 const card=(label,v,k,foot)=>'<div class="card"><div class="metrichead"><span class="iconbox">'+icon(k)+'</span>'+label+'</div><span class="money">'+br(v)+'</span><small>'+foot+'</small></div>';
 function chart(arr){let vals=Array.from({length:6},(_,i)=>{const m=shift(month(),i-5),a=arr.filter(x=>x.date.startsWith(m));return [new Date(m+'-15T12:00:00Z').toLocaleString('pt-BR',{month:'short'}).replace('.',''),total(a,'Receita'),total(a,'Despesa')]});let max=Math.max(10000,Math.ceil(Math.max(...vals.flatMap(x=>x.slice(1)))/10000)*10000);return '<section class="panel"><div class="panelhead"><h2>Fluxo de caixa</h2><small>Últimos 6 meses</small></div><div class="chart"><div class="axis"><span>'+br(max).replace(',00','')+'</span><span>R$ 0</span></div><div class="bars">'+vals.map(([m,i,o])=>'<div class="pair" title="'+m+' · Receitas '+br(i)+' · Despesas '+br(o)+'"><i style="height:'+i/max*100+'%"></i><i style="height:'+o/max*100+'%"></i><small>'+m+'</small></div>').join('')+'</div></div><div class="legend"><span><b></b>Receitas</span><span><b></b>Despesas</span></div></section>'}
 function list(a,full=false){return a.length?a.map(x=>{const incoming=['Receita','Resgate','Retirada da reserva','Saldo inicial'].includes(x.type);return '<div class="row"><span class="iconbox '+(incoming?'':'out')+'">'+icon(incoming?'down':x.type==='Despesa'?'up':x.type==='Reserva da casa'?'home':'list')+'</span><div class="detail"><strong>'+esc(x.name)+(x.seriesLabel?' · '+esc(x.seriesLabel):'')+'</strong><small>'+esc(x.person)+' · '+x.date.slice(8)+'/'+x.date.slice(5,7)+(full?' · '+esc(x.type):'')+(x.paid===false?' · Pendente':'')+(full&&x.account?' · '+esc(x.account):'')+(full&&x.destination?' → '+esc(x.destination):'')+(full&&x.category?' · '+esc(x.category):'')+'</small></div><b class="'+(incoming?'positive':'')+'">'+(incoming?'+ ':['Despesa','Investimento','Reserva da casa','Pagamento de dívida'].includes(x.type)?'− ':'')+br(x.amount)+'</b>'+(full&&!demo?'<div class="actions"><button data-id="'+esc(x.id)+'">Editar</button></div>':'')+'</div>'}).join(''):'<p class="empty">Nenhum lançamento neste período.</p>'}
-function render(){demo=ready&&showDemo&&!rows.length&&!goal;$('#crumb').textContent=$('#title').textContent=page;$('#who').textContent=profile;$('#sub').textContent=titles[page];$('#nav').innerHTML=Object.entries(pages).map(([n,k])=>'<button data-page="'+n+'" class="'+(page===n?'on':'')+'">'+icon(k)+n+'</button>').join('');$('#profiles').innerHTML=people.map(p=>'<button data-profile="'+p+'" class="'+(p===profile?'on':'')+'">'+icon(p==='Casal'?'couple':'user')+p+'</button>').join('');paintProfiles();const arr=all(),a=arr.filter(x=>x.date.startsWith(month())),s=stats(arr);let h='';if(page==='Visão geral'){h=hero()+'<div class="cards">'+card('Saldo disponível',s.cash,'wallet','Acumulado até o período')+card('Receitas',total(a,'Receita'),'down','Entradas no mês')+card('Despesas',total(a,'Despesa'),'up','Saídas no mês')+card('Investimentos',s.invest,'invest','Total aplicado')+'</div><div class="grid">'+chart(arr)+'<section class="panel"><div class="panelhead"><h2>Últimos lançamentos</h2><button class="plain" data-page="Lançamentos">Ver todos</button></div>'+list(a.slice(0,3))+'</section></div>'}
+function render(){demo=ready&&showDemo&&!rows.length&&!goal;$('#crumb').textContent=$('#title').textContent=page;$('#who').textContent=profile;$('#sub').textContent=titles[page];$('#nav').innerHTML=Object.entries(pages).map(([n,k])=>'<button data-page="'+n+'" class="'+(page===n?'on':'')+'">'+icon(k)+n+'</button>').join('');paintProfiles();const arr=all(),a=arr.filter(x=>x.date.startsWith(month())),s=stats(arr);let h='';if(page==='Visão geral'){h=hero()+'<div class="cards">'+card('Saldo disponível',s.cash,'wallet','Acumulado até o período')+card('Receitas',total(a,'Receita'),'down','Entradas no mês')+card('Despesas',total(a,'Despesa'),'up','Saídas no mês')+card('Investimentos',s.invest,'invest','Total aplicado')+'</div><div class="grid">'+chart(arr)+'<section class="panel"><div class="panelhead"><h2>Últimos lançamentos</h2><button class="plain" data-page="Lançamentos">Ver todos</button></div>'+list(a.slice(0,3))+'</section></div>'}
 else if(page==='Nossa casa'){const g=sharedGoal(),reserve=stats(all(true)).reserve,left=g?Math.max(0,g.target-reserve):0,months=g&&g.monthly?Math.ceil(left/g.monthly):0;let date=months&&months<1200?new Date(shift(month(),months)+'-15T12:00:00Z').toLocaleDateString('pt-BR',{month:'long',year:'numeric'}):'';h=hero()+'<section class="panel bigpanel"><div class="panelhead"><h2>Previsão da mudança</h2></div><p>'+(g?left===0?'Vocês alcançaram o valor planejado!':g.monthly?'Com aportes de <b>'+br(g.monthly)+'</b> por mês, faltam <b>'+months+' meses</b>'+(date?' para atingir a meta em '+date:'')+'.':'Definam o aporte mensal para estimar a data da mudança.':'Configurem o custo da mudança e o aporte mensal para calcular a previsão.')+'</p><button class="herobutton" data-act="reserve">Adicionar à reserva</button></section>'}
 else {let visible=source().filter(x=>(profile==='Casal'||x.person===profile)&&x.date.startsWith(month())).sort((a,b)=>b.date.localeCompare(a.date));if(page==='Investimentos'){h=card('Total aplicado',s.invest,'invest','Aportes menos resgates');visible=arr.filter(x=>['Investimento','Resgate'].includes(x.type))}if(page==='Dívidas'){h=card('Saldo devedor',s.debt,'debt','Dívidas menos pagamentos');visible=arr.filter(x=>['Dívida','Pagamento de dívida'].includes(x.type))}if(page==='Patrimônio'){h='<div class="cards">'+card('Patrimônio líquido',s.net,'asset','Ativos menos dívidas')+card('Bens',s.assets,'home','Valor cadastrado')+card('Reserva da casa',s.reserve,'wallet','Total reservado')+card('Saldo devedor',s.debt,'debt','Total pendente')+'</div>';visible=arr.filter(x=>['Bem','Saldo inicial'].includes(x.type))}h+='<section class="panel bigpanel"><div class="panelhead"><h2>'+({'Lançamentos':'Movimentações','Investimentos':'Aportes e resgates','Dívidas':'Dívidas e pagamentos','Patrimônio':'Bens e saldos iniciais'}[page])+'</h2></div>'+list(visible,true)+'</section>'}
 $('#view').innerHTML=(demo?'<div class="demoline">Painel de exemplo <button class="plain" data-act="real">Começar com meus dados</button></div>':'')+h;}
@@ -39,7 +39,7 @@ function changeGroup(group,type=group){
 function openForm(kind='save',id=null,preset){
  if(!ready)return;
  mode=kind;editing=id;$('#error').textContent='';
- const x=id?source().find(q=>q.id===id)||{}:{},val=v=>v===undefined?'':(v/100).toFixed(2).replace('.',',');
+ const x=id?source().find(q=>q.id===id)||{}:{},val=v=>v===undefined?'':moneyNumber.format(v/100);
  $('#formtitle').textContent=kind==='goal'?'Meta da nossa casa':id?'Editar lançamento':'Novo lançamento';
  const warning=demo?'<p class="examplehint">O primeiro registro inicia o painel de vocês.</p>':'';
  if(kind==='goal'){
@@ -63,8 +63,48 @@ function openForm(kind='save',id=null,preset){
  if(!$('#modal').open)$('#modal').showModal();$('#form input:not([type=checkbox])')?.focus();
 }
 const parseMoney=v=>{const n=v.trim();return /^(?:\d+|\d{1,3}(?:\.\d{3})+)(?:,\d{1,2})?$/.test(n)?Math.round(Number(n.replaceAll('.','').replace(',','.'))*100):/^\d+\.\d{1,2}$/.test(n)?Math.round(Number(n)*100):NaN};
+const moneyNumber=new Intl.NumberFormat('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+function moneyField(input){return input.matches('input[name="amount"],input[name="target"],input[name="monthly"]')}
+function groupMoney(input){
+ const raw=input.value, cursor=input.selectionStart;
+ const stripped=raw.replace(/^\s*R\$\s*/, '').trim();
+ if(!/^[\d.]*,?\d*$/.test(stripped))return;
+ const [integer,decimal]=stripped.split(',');
+ const digits=integer.replaceAll('.','');
+ const grouped=digits.replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+ const value=decimal===undefined?grouped:(grouped||'0')+','+decimal;
+ if(value===raw)return;
+ const remaining=raw.slice(cursor).replace(/[^\d,]/g,'').length;
+ let pos=value.length, left=remaining;
+ while(left>0&&pos>0){if(/[\d,]/.test(value[--pos]))left--;}
+ input.value=value;input.setSelectionRange(pos,pos);
+}
+$('#form').addEventListener('beforeinput',event=>{
+ const el=event.target;if(!moneyField(el))return;
+ const start=el.selectionStart,end=el.selectionEnd;
+ if(event.inputType==='insertText'&&event.data==='.'){
+  event.preventDefault();el.setRangeText(',',start,end,'end');groupMoney(el);
+ }else if(start===end&&event.inputType==='deleteContentBackward'&&el.value[start-1]==='.'){
+  el.setSelectionRange(Math.max(0,start-2),start);
+ }else if(start===end&&event.inputType==='deleteContentForward'&&el.value[start]==='.'){
+  el.setSelectionRange(start,start+2);
+ }
+});
+$('#form').addEventListener('paste',event=>{
+ const el=event.target;if(!moneyField(el))return;
+ const text=event.clipboardData.getData('text').trim().replace(/^R\$\s*/,'');
+ if(el.selectionStart===0&&el.selectionEnd===el.value.length&&Number.isSafeInteger(parseMoney(text))){
+  event.preventDefault();el.value=moneyNumber.format(parseMoney(text)/100);el.setSelectionRange(el.value.length,el.value.length);
+ }
+});
+$('#form').addEventListener('input',event=>{if(moneyField(event.target)&&!event.isComposing)groupMoney(event.target)});
+$('#form').addEventListener('focusout',event=>{
+ const el=event.target;if(!moneyField(el))return;
+ const cents=parseMoney(el.value.replace(/,$/,''));
+ if(Number.isSafeInteger(cents))el.value=moneyNumber.format(cents/100);
+});
 async function load(){await readHousehold();ready=true;render()}
 let busy=false;async function save(payload,another=false){if(busy)return;busy=true;$('#form .save').disabled=true;try{await writeHousehold(payload);showDemo=false;sessionStorage.setItem('real','1');await load();if(another)openForm('save');else $('#modal').close()}catch{$('#error').textContent='Não foi possível salvar. Tente novamente.'}finally{busy=false;$('#form .save').disabled=false}}
 $('#form').onsubmit=e=>{e.preventDefault();const d=Object.fromEntries(new FormData(e.target));for(const k of ['amount','target','monthly'])if(k in d){d[k]=parseMoney(d[k]);if(!Number.isSafeInteger(d[k])||d[k]<(k==='monthly'?0:1)){ $('#error').textContent='Informe um valor válido em reais.';return}}if(mode==='save'){if(d.schedule==='parts'){d.parts=Number(d.parts);if(!Number.isInteger(d.parts)||d.parts<2||d.parts>360||d.amount<d.parts){$('#error').textContent='Cada parcela precisa ter pelo menos um centavo.';return}}else delete d.parts;d.paid=e.target.elements.paid.checked;if(d.type==='Transferência'&&d.account.trim().toLowerCase()===d.destination.trim().toLowerCase()){$('#error').textContent='Escolha contas diferentes para origem e destino.';return;}}if(mode==='save'&&!editing)editing=crypto.randomUUID();save({...d,action:mode,id:editing},e.submitter?.name==='another')};
-document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.group)return changeGroup(b.dataset.group);if(b.dataset.page)page=b.dataset.page;else if(b.dataset.profile)profile=b.dataset.profile;else if(b.dataset.id)return openForm('save',b.dataset.id);else switch(b.dataset.act){case 'house':page='Nossa casa';break;case 'real':showDemo=false;sessionStorage.setItem('real','1');break;case 'goal':return openForm('goal');case 'reserve':return openForm('save',null,'Reserva da casa');case 'delete':if(confirm('Excluir este lançamento?'))save({action:'delete',id:editing});return;default:return}render()});
-$('#add').onclick=()=>openForm();$('#close').onclick=()=>$('#modal').close();$('#month').value=thisMonth;$('#month').onchange=render;$('#customProfile').onclick=()=>showProfile(profile==='Thaynara'?'Thaynara':'Pedro');
+document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.group)return changeGroup(b.dataset.group);if(b.dataset.page)page=b.dataset.page;else if(b.dataset.profile)return switchSpace(b.dataset.profile);else if(b.dataset.id)return openForm('save',b.dataset.id);else switch(b.dataset.act){case 'house':page='Nossa casa';break;case 'real':showDemo=false;sessionStorage.setItem('real','1');break;case 'goal':return openForm('goal');case 'reserve':return openForm('save',null,'Reserva da casa');case 'delete':if(confirm('Excluir este lançamento?'))save({action:'delete',id:editing});return;default:return}render()});
+$('#add').onclick=()=>openForm();$('#close').onclick=()=>$('#modal').close();$('#month').value=thisMonth;$('#month').onchange=render;

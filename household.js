@@ -66,13 +66,41 @@ function avatar(name,settings=profileSettings[name]||{}){
  const img=/^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(settings.photo||'')?'<img src="'+settings.photo+'" alt="">':'';
  return '<i class="personpic" style="--person:'+col+';--initial:'+foreground(col)+'">'+(img||name[0])+'</i>';
 }
+function profileBadge(name){
+ return name==='Casal'?'<span class="couple-badge">'+avatar('Pedro')+avatar('Thaynara')+'</span>':avatar(name);
+}
 function paintProfiles(){
  const color=profileColor(profile);
  document.body.dataset.theme=profile;
  document.body.style.setProperty('--profile-accent',color);
  document.body.style.setProperty('--profile-foreground',foreground(color));
  document.querySelectorAll('.avatars').forEach(el=>el.innerHTML=avatar('Pedro')+avatar('Thaynara'));
- document.querySelectorAll('#profiles button').forEach(el=>{const name=el.dataset.profile;el.setAttribute('aria-pressed',String(name===profile));if(name!=='Casal')el.innerHTML=avatar(name)+name;});
+ $('#spaceBadge').innerHTML=profileBadge(profile);
+ $('#spaceName').textContent=profile;
+ $('#chooseSpace').setAttribute('aria-label','Trocar perfil. Espaço atual: '+profile);
+ $('#profiles').innerHTML=people.map(name=>{
+  const selected=name===profile;
+  return '<button type="button" data-profile="'+name+'" aria-pressed="'+selected+'" style="--option-color:'+profileColor(name)+'">'+profileBadge(name)+'<strong>'+name+'</strong><span class="choice-check" aria-hidden="true">'+(selected?'✓':'')+'</span></button>';
+ }).join('');
+}
+const spaceDialog=$('#spaceDialog');
+$('#chooseSpace').onclick=()=>{
+ spaceDialog.showModal();
+ spaceDialog.querySelector('[aria-pressed="true"]').focus();
+};
+$('#closeSpace').onclick=()=>spaceDialog.close();
+$('#customProfile').onclick=()=>{
+ spaceDialog.close();
+ showProfile(profile==='Thaynara'?'Thaynara':'Pedro');
+};
+function switchSpace(next){
+ spaceDialog.close();
+ if(!people.includes(next)||next===profile)return;
+ profile=next;
+ render();
+ if(!matchMedia('(prefers-reduced-motion: reduce)').matches){
+  $('#view').animate([{opacity:0.35,transform:'translateY(7px)'},{opacity:1,transform:'translateY(0)'}],{duration:240,easing:'ease-out'});
+ }
 }
 function showProfile(name){
  if(!ready)return;
